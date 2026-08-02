@@ -1,0 +1,50 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-background: #07030d;
+  --color-surface: #120a1e;
+  --color-surface-2: #1a1029;
+  --color-foreground: #f4f1f8;
+  --color-muted: #8b7ea3;
+  --color-border: #2a1f3d;
+  --color-accent: #9333ea;
+  --color-gold: #e8b923;
+  --color-vacant: #f97316;
+  --color-occupied: #22c55e;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-sheet {
+  animation: sheet-up 0.22s ease-out;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
