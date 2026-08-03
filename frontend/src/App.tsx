@@ -1,80 +1,238 @@
 import { useMemo, useState } from 'react'
-import { Crown, MapPin, Phone, TrendingDown, Wallet } from 'lucide-react'
+import { MapPin, Menu, TrendingDown, Wallet, X } from 'lucide-react'
 import { OWNER } from './mock'
-import type { Site } from './mock'
+import type { Room } from './mock'
 import { uah } from './format'
 import { haptic } from './telegram'
-import UnitCard from './components/UnitCard'
-import type { RequestType } from './components/UnitCard'
+import Sidebar from './components/Sidebar'
+import FloorPlan from './components/FloorPlan'
+import RoomDetails from './components/RoomDetails'
+import type { RequestType } from './components/RoomDetails'
 import ConfirmSheet from './components/ConfirmSheet'
 
-type PendingRequest = { unitId: string; unitLabel: string; type: RequestType }
+type Pending = { roomId: string; roomLabel: string; type: RequestType }
 
 export default function App() {
-  const [activeSiteId, setActiveSiteId] = useState(OWNER.sites[0].id)
-  const [pending, setPending] = useState<PendingRequest | null>(null)
-  // Ключ виду "unitId:REQUEST_TYPE". Поки що тільки в пам'яті — бекенда ще немає.
+  const [siteId, setSiteId] = useState(OWNER.sites[0].id)
+  const [buildingId, setBuildingId] = useState(OWNER.sites[0].buildings[0].id)
+  const [floorId, setFloorId] = useState(
+    OWNER.sites[0].buildings[0].floors[0].id,
+  )
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null)
+  const [expanded, setExpanded] = useState(false)
+  const [pending, setPending] = useState<Pending | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  // Ключі виду "roomId:REQUEST_TYPE". Поки що тільки в пам'яті — бекенда немає.
   const [sent, setSent] = useState<Array<string>>([])
 
-  const site = OWNER.sites.find((s) => s.id === activeSiteId)!
+  const site = OWNER.sites.find((s) => s.id === siteId)!
+  const building = site.buildings.find((b) => b.id === buildingId)!
+  const floor = building.floors.find((f) => f.id === floorId) ?? building.floors[0]
+  const selectedRoom = floor.rooms.find((r) => r.id === selectedRoomId) ?? null
 
   const totals = useMemo(() => {
-    const units = OWNER.sites.flatMap((s) => s.units)
-    const income = units.reduce((sum, u) => sum + (u.rent ?? 0), 0)
-    const lost = units
-      .filter((u) => u.tenant === null)
-      .reduce((sum, u) => sum + u.marketRent, 0)
-    const area = units.reduce((sum, u) => sum + u.area, 0)
-    const occupiedArea = units
-      .filter((u) => u.tenant !== null)
-      .reduce((sum, u) => sum + u.area, 0)
-    return {
-      income,
-      lost,
-      occupancy: Math.round((occupiedArea / area) * 100),
-    }
+    const rooms = OWNER.sites
+      .flatMap((s) => s.buildings)
+      .flatMap((b) => b.floors)
+      .flatMap((f) => f.rooms)
+    const income = rooms.reduce((sum, r) => sum + (r.rent ?? 0), 0)
+    const lost = rooms
+      .filter((r) => r.tenant === null)
+      .reduce((sum, r) => sum + r.marketRent, 0)
+    const area = rooms.reduce((sum, r) => sum + r.area, 0)
+    const busy = rooms
+      .filter((r) => r.tenant !== null)
+      .reduce((sum, r) => sum + r.area, 0)
+    return { income, lost, occupancy: Math.round((busy / area) * 100) }
   }, [])
+
+  const selectBuilding = (nextSiteId: string, nextBuildingId: string) => {
+    const nextSite = OWNER.sites.find((s) => s.id === nextSiteId)!
+    const nextBuilding =
+      nextSite.buildings.find((b) => b.id === nextBuildingId) ??
+      nextSite.buildings[0]
+    setSiteId(nextSiteId)
+    setBuildingId(nextBuilding.id)
+    setFloorId(nextBuilding.floors[0].id)
+    setSelectedRoomId(null)
+    setExpanded(false)
+    setMenuOpen(false)
+    haptic()
+  }
+
+  const selectRoom = (room: Room) => {
+    setSelectedRoomId(room.id)
+    setExpanded(false)
+    haptic()
+  }
 
   const confirm = () => {
     if (!pending) return
-    setSent((prev) => [...prev, `${pending.unitId}:${pending.type}`])
+    setSent((prev) => [...prev, `${pending.roomId}:${pending.type}`])
     setPending(null)
     haptic('success')
   }
 
-  return (
-    <div className="mx-auto min-h-full w-full max-w-[480px] px-4 pb-12">
-      <Header />
-      <Totals {...totals} />
-      <SiteTabs
-        sites={OWNER.sites}
-        activeId={activeSiteId}
-        onSelect={(id) => {
-          setActiveSiteId(id)
-          haptic()
-        }}
-      />
-      <SiteView site={site} />
+  const sentFor = (roomId: string) =>
+    (['RENT_OUT', 'CHECK_DEMAND', 'FIND_TENANT'] as const).filter((t) =>
+      sent.includes(`${roomId}:${t}`),
+    ) as Array<RequestType>
 
-      <div className="mt-4 space-y-3">
-        {site.units.map((unit) => (
-          <UnitCard
-            key={unit.id}
-            unit={unit}
-            sent={
-              (['RENT_OUT', 'CHECK_DEMAND', 'FIND_TENANT'] as const).filter(
-                (t) => sent.includes(`${unit.id}:${t}`),
-              ) as Array<RequestType>
-            }
-            onRequest={(type) => {
-              haptic()
-              setPending({ unitId: unit.id, unitLabel: unit.label, type })
-            }}
-          />
-        ))}
+  return (
+    <div className="flex h-full">
+      {/* Сайдбар: постійний на широкому екрані, шухляда — на телефоні */}
+      <div className="hidden w-64 shrink-0 lg:block">
+        <Sidebar
+          activeSiteId={siteId}
+          activeBuildingId={buildingId}
+          onSelect={selectBuilding}
+        />
       </div>
 
-      <ManagerCard />
+      {menuOpen && (
+        <div className="fixed inset-0 z-40 flex lg:hidden">
+          <button
+            aria-label="Закрити меню"
+            onClick={() => setMenuOpen(false)}
+            className="absolute inset-0 bg-black/70"
+          />
+          <div className="relative w-72 max-w-[80%]">
+            <Sidebar
+              activeSiteId={siteId}
+              activeBuildingId={buildingId}
+              onSelect={selectBuilding}
+            />
+            <button
+              onClick={() => setMenuOpen(false)}
+              className="absolute right-3 top-4 text-muted"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <main className="flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-[1200px] px-4 pb-16 lg:px-8">
+          <header className="flex items-center gap-3 py-5">
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="rounded-xl border border-border p-2 text-muted lg:hidden"
+            >
+              <Menu size={18} />
+            </button>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-xl font-semibold">
+                {building.label}
+              </div>
+              <div className="mt-0.5 flex items-center gap-1.5 text-sm text-muted">
+                <MapPin size={13} className="shrink-0 text-accent" />
+                <span className="truncate">{site.address}</span>
+              </div>
+            </div>
+          </header>
+
+          <div className="grid grid-cols-2 gap-3 lg:max-w-lg">
+            <Metric
+              icon={<Wallet size={12} />}
+              label="Дохід"
+              value={uah(totals.income)}
+              hint={`грн/міс · заповнено ${totals.occupancy}%`}
+            />
+            <Metric
+              danger
+              icon={<TrendingDown size={12} />}
+              label="Упущено"
+              value={uah(totals.lost)}
+              hint="грн/міс на порожніх"
+            />
+          </div>
+
+          {/* Поверхи */}
+          <div className="no-scrollbar -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0">
+            {building.floors.map((f) => {
+              const free = f.rooms.filter((r) => r.tenant === null).length
+              const active = f.id === floor.id
+              return (
+                <button
+                  key={f.id}
+                  onClick={() => {
+                    setFloorId(f.id)
+                    setSelectedRoomId(null)
+                    haptic()
+                  }}
+                  className={`flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors ${
+                    active
+                      ? 'border-accent bg-accent/15 text-foreground'
+                      : 'border-border bg-surface text-muted'
+                  }`}
+                >
+                  {f.label}
+                  {free > 0 && (
+                    <span className="rounded-md bg-vacant/20 px-1.5 py-0.5 text-[10px] font-bold text-vacant">
+                      {free} вільно
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_340px]">
+            <FloorPlan
+              floor={floor}
+              selectedId={selectedRoomId}
+              onSelect={selectRoom}
+            />
+
+            {/* Праворуч на десктопі, нижньою шторкою — на телефоні */}
+            <div className="hidden lg:block">
+              {selectedRoom ? (
+                <div className="sticky top-4">
+                  <RoomDetails
+                    room={selectedRoom}
+                    sent={sentFor(selectedRoom.id)}
+                    expanded={expanded}
+                    onToggleExpanded={() => setExpanded((v) => !v)}
+                    onRequest={(type) =>
+                      setPending({
+                        roomId: selectedRoom.id,
+                        roomLabel: selectedRoom.label,
+                        type,
+                      })
+                    }
+                  />
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted">
+                  Натисніть приміщення на плані, щоб побачити орендаря, ставку
+                  й умови договору
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Телефон: картка приміщення знизу */}
+      {selectedRoom && (
+        <div className="fixed inset-x-0 bottom-0 z-30 max-h-[80%] overflow-y-auto p-3 lg:hidden">
+          <RoomDetails
+            room={selectedRoom}
+            sent={sentFor(selectedRoom.id)}
+            expanded={expanded}
+            onToggleExpanded={() => setExpanded((v) => !v)}
+            onRequest={(type) =>
+              setPending({
+                roomId: selectedRoom.id,
+                roomLabel: selectedRoom.label,
+                type,
+              })
+            }
+            onClose={() => setSelectedRoomId(null)}
+          />
+        </div>
+      )}
 
       {pending && (
         <ConfirmSheet
@@ -87,148 +245,46 @@ export default function App() {
   )
 }
 
-function Header() {
-  return (
-    <header className="flex items-center gap-3 py-6">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-gold/40 bg-gold/10 text-gold">
-        <Crown size={22} />
-      </div>
-      <div className="min-w-0">
-        <div className="truncate text-xl font-semibold">{OWNER.name}</div>
-        <div className="mt-0.5 flex items-center gap-2">
-          <span className="rounded-md border border-gold/40 bg-gold/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-gold">
-            Prime
-          </span>
-          <span className="text-xs text-muted">
-            {OWNER.sites.length} бази · Reland
-          </span>
-        </div>
-      </div>
-    </header>
-  )
-}
-
-function Totals({
-  income,
-  lost,
-  occupancy,
+function Metric({
+  icon,
+  label,
+  value,
+  hint,
+  danger,
 }: {
-  income: number
-  lost: number
-  occupancy: number
+  icon: React.ReactNode
+  label: string
+  value: string
+  hint: string
+  danger?: boolean
 }) {
   return (
-    <div className="grid grid-cols-2 gap-3">
-      <div className="rounded-2xl border border-border bg-surface p-4">
-        <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted">
-          <Wallet size={12} /> Дохід
-        </div>
-        <div className="mt-1.5 text-xl font-bold">{uah(income)}</div>
-        <div className="text-[11px] text-muted">грн/міс · заповнено {occupancy}%</div>
+    <div
+      className={`rounded-2xl border p-4 ${
+        danger ? 'border-vacant/30 bg-vacant/10' : 'border-border bg-surface'
+      }`}
+    >
+      <div
+        className={`flex items-center gap-1.5 text-[11px] uppercase tracking-wider ${
+          danger ? 'text-vacant/80' : 'text-muted'
+        }`}
+      >
+        {icon} {label}
       </div>
-
-      {/* Упущена вигода — головна цифра кабінету: показує, що простій коштує грошей */}
-      <div className="rounded-2xl border border-vacant/30 bg-vacant/10 p-4">
-        <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-vacant/80">
-          <TrendingDown size={12} /> Упущено
-        </div>
-        <div className="mt-1.5 text-xl font-bold text-vacant">{uah(lost)}</div>
-        <div className="text-[11px] text-vacant/70">грн/міс на порожніх</div>
+      <div className={`mt-1.5 text-xl font-bold ${danger ? 'text-vacant' : ''}`}>
+        {value}
+      </div>
+      <div className={`text-[11px] ${danger ? 'text-vacant/70' : 'text-muted'}`}>
+        {hint}
       </div>
     </div>
   )
 }
 
-function SiteTabs({
-  sites,
-  activeId,
-  onSelect,
-}: {
-  sites: Array<Site>
-  activeId: string
-  onSelect: (id: string) => void
-}) {
-  return (
-    <div className="no-scrollbar -mx-4 mt-5 flex gap-2 overflow-x-auto px-4">
-      {sites.map((s) => {
-        const vacant = s.units.filter((u) => u.tenant === null).length
-        const active = s.id === activeId
-        return (
-          <button
-            key={s.id}
-            onClick={() => onSelect(s.id)}
-            className={`flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors ${
-              active
-                ? 'border-accent bg-accent/15 text-foreground'
-                : 'border-border bg-surface text-muted'
-            }`}
-          >
-            {s.name}
-            {vacant > 0 && (
-              <span className="rounded-md bg-vacant/20 px-1.5 py-0.5 text-[10px] font-bold text-vacant">
-                {vacant} вільно
-              </span>
-            )}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
-function SiteView({ site }: { site: Site }) {
-  const occupied = site.units.filter((u) => u.tenant !== null)
-  const area = site.units.reduce((sum, u) => sum + u.area, 0)
-
-  return (
-    <section className="mt-5">
-      <div className="flex items-start gap-2 text-sm text-muted">
-        <MapPin size={15} className="mt-0.5 shrink-0 text-accent" />
-        <span>{site.address}</span>
-      </div>
-
-      <div className="mt-3 flex items-baseline justify-between text-xs">
-        <span className="text-muted">
-          Здано {occupied.length} з {site.units.length} блоків
-        </span>
-        <span className="text-muted">{area} м²</span>
-      </div>
-
-      {/* Смуга заповнюваності: ширина сегмента пропорційна площі блоку */}
-      <div className="mt-2 flex h-2 gap-0.5 overflow-hidden rounded-full">
-        {site.units.map((u) => (
-          <div
-            key={u.id}
-            style={{ width: `${(u.area / area) * 100}%` }}
-            className={u.tenant ? 'bg-occupied' : 'bg-vacant'}
-          />
-        ))}
-      </div>
-    </section>
-  )
-}
-
-function ManagerCard() {
-  return (
-    <div className="mt-6 flex items-center gap-3 rounded-2xl border border-border bg-surface p-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent">
-        <Phone size={18} />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-sm font-semibold">Ваш менеджер</div>
-        <div className="text-xs text-muted">Сергій Сергєєв · Reland</div>
-      </div>
-      <button className="rounded-xl border border-border px-4 py-2 text-sm font-semibold transition-transform active:scale-95">
-        Зв'язатись
-      </button>
-    </div>
-  )
-}
-
-function sheetCopy({ unitLabel, type }: PendingRequest) {
+function sheetCopy({ roomLabel, type }: Pending) {
   if (type === 'RENT_OUT') {
     return {
-      title: `Здати «${unitLabel}»?`,
+      title: `Здати «${roomLabel}»?`,
       confirmLabel: 'Так, здаємо',
       tone: 'accent' as const,
       description:
@@ -237,7 +293,7 @@ function sheetCopy({ unitLabel, type }: PendingRequest) {
   }
   if (type === 'CHECK_DEMAND') {
     return {
-      title: `Дізнатись попит на «${unitLabel}»?`,
+      title: `Дізнатись попит на «${roomLabel}»?`,
       confirmLabel: 'Перевірити попит',
       tone: 'accent' as const,
       description:
@@ -245,7 +301,7 @@ function sheetCopy({ unitLabel, type }: PendingRequest) {
     }
   }
   return {
-    title: `Знайти нового орендаря для «${unitLabel}»?`,
+    title: `Знайти нового орендаря для «${roomLabel}»?`,
     confirmLabel: 'Шукати орендаря',
     tone: 'danger' as const,
     description:
