@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Check,
   Copy,
+  FileJson,
   Ruler,
   Squircle,
   Trash2,
@@ -170,6 +171,42 @@ export default function PlanEditor({ onClose }: { onClose: () => void }) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   })
+
+  /**
+   * Завантаження готової розмітки. Основний сценарій — план, розпізнаний із
+   * рукописного скану: контури приходять сюди, а людина виправляє те, що
+   * прочиталося неправильно, замість того щоб обводити все з нуля.
+   */
+  const importJson = (file: File) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(String(reader.result))
+        const incoming: Array<DraftRoom> = (data.rooms ?? []).map(
+          (r: { label?: string; area?: number; polygon: Polygon }, i: number) => ({
+            id: `imported-${i + 1}`,
+            label: r.label ?? `Приміщення ${i + 1}`,
+            area: Number(r.area) || 0,
+            polygon: r.polygon,
+          }),
+        )
+        if (incoming.length === 0) {
+          window.alert('У файлі немає жодного контуру')
+          return
+        }
+        if (data.viewBox) {
+          const [, , w, h] = String(data.viewBox).split(' ').map(Number)
+          if (w && h) setSize({ w, h })
+        }
+        if (data.metersPerUnit) setMetersPerUnit(Number(data.metersPerUnit))
+        setRooms(incoming)
+        setDraft([])
+      } catch {
+        window.alert('Не вдалося прочитати файл — очікується JSON з полем rooms')
+      }
+    }
+    reader.readAsText(file)
+  }
 
   const exportJson = async () => {
     const payload = {
@@ -404,7 +441,22 @@ export default function PlanEditor({ onClose }: { onClose: () => void }) {
                 )}
               </div>
 
-              <div className="border-t border-border p-3">
+              <div className="space-y-2 border-t border-border p-3">
+                <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-border py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground">
+                  <FileJson size={15} />
+                  Завантажити розмітку
+                  <input
+                    type="file"
+                    accept="application/json,.json"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) importJson(file)
+                      e.target.value = ''
+                    }}
+                  />
+                </label>
+
                 <button
                   onClick={exportJson}
                   disabled={rooms.length === 0}
