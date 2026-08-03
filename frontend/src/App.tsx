@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { MapPin, Menu, TrendingDown, Wallet, X } from 'lucide-react'
+import { MapPin, Menu, PencilRuler, TrendingDown, Wallet, X } from 'lucide-react'
 import { OWNER } from './mock'
 import type { Room } from './mock'
 import { uah } from './format'
@@ -9,6 +9,7 @@ import FloorPlan from './components/FloorPlan'
 import RoomDetails from './components/RoomDetails'
 import type { RequestType } from './components/RoomDetails'
 import ConfirmSheet from './components/ConfirmSheet'
+import PlanEditor from './components/PlanEditor'
 
 type Pending = { roomId: string; roomLabel: string; type: RequestType }
 
@@ -22,6 +23,10 @@ export default function App() {
   const [expanded, setExpanded] = useState(false)
   const [pending, setPending] = useState<Pending | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
+  // Режим адміна: розмітка планування. Власник його не бачить — це наш інструмент.
+  const [editorOpen, setEditorOpen] = useState(
+    () => new URLSearchParams(window.location.search).has('admin'),
+  )
   // Ключі виду "roomId:REQUEST_TYPE". Поки що тільки в пам'яті — бекенда немає.
   const [sent, setSent] = useState<Array<string>>([])
 
@@ -130,6 +135,15 @@ export default function App() {
                 <span className="truncate">{site.address}</span>
               </div>
             </div>
+
+            <button
+              onClick={() => setEditorOpen(true)}
+              title="Розмітка планування"
+              className="flex shrink-0 items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+            >
+              <PencilRuler size={16} />
+              <span className="hidden sm:inline">Розмітка</span>
+            </button>
           </header>
 
           <div className="grid grid-cols-2 gap-3 lg:max-w-lg">
@@ -233,6 +247,8 @@ export default function App() {
           />
         </div>
       )}
+
+      {editorOpen && <PlanEditor onClose={() => setEditorOpen(false)} />}
 
       {pending && (
         <ConfirmSheet

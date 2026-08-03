@@ -1,17 +1,18 @@
 import { useState } from 'react'
 import type { Floor, Room } from '../mock'
+import { bbox, toSvgPoints } from '../geometry'
 import { uah } from '../format'
 
 /**
  * Інтерактивне планування поверху.
  *
- * Кожне приміщення — окрема фігура поверх плану: наведення підсвічує,
- * клік відкриває картку з орендарем і ставками. Підпис усередині фігури
- * показуємо тільки там, де він фізично влазить, — інакше план перетворюється
- * на кашу з тексту; решту читає власник у картці збоку.
+ * Кожне приміщення — полігон поверх плану: наведення підсвічує, клік відкриває
+ * картку з орендарем і ставками. Підпис усередині фігури показуємо тільки там,
+ * де він фізично влазить, — інакше план перетворюється на кашу з тексту;
+ * решту читає власник у картці збоку.
  *
- * planImage (скан планування) підкладається під фігури, коли з'явиться
- * завантаження. Зараз план векторний, тому фон просто не рендериться.
+ * floor.planImage — скан планування під полігонами. Векторні плани його просто
+ * не мають, і код від цього не залежить.
  */
 export default function FloorPlan({
   floor,
@@ -36,39 +37,41 @@ export default function FloorPlan({
             href={floor.planImage}
             x={0}
             y={0}
-            width="100%"
-            height="100%"
-            preserveAspectRatio="xMidYMid slice"
-            opacity={0.35}
+            width={viewBoxSize(floor.viewBox).w}
+            height={viewBoxSize(floor.viewBox).h}
+            preserveAspectRatio="none"
+            opacity={0.55}
           />
         )}
 
-        {floor.corridors.map((c, i) => (
-          <g key={i}>
-            <rect
-              {...c}
-              rx={6}
-              className="fill-surface-2 stroke-border"
-              strokeWidth={2}
-            />
-            {c.label && (
-              <text
-                x={c.x + c.w / 2}
-                y={c.y + c.h / 2 + 5}
-                textAnchor="middle"
-                className="fill-muted"
-                fontSize={16}
-              >
-                {c.label}
-              </text>
-            )}
-          </g>
-        ))}
+        {floor.corridors.map((c, i) => {
+          const box = bbox(c.polygon)
+          return (
+            <g key={i}>
+              <polygon
+                points={toSvgPoints(c.polygon)}
+                className="fill-surface-2 stroke-border"
+                strokeWidth={2}
+              />
+              {c.label && (
+                <text
+                  x={box.x + box.w / 2}
+                  y={box.y + box.h / 2 + 5}
+                  textAnchor="middle"
+                  className="fill-muted"
+                  fontSize={16}
+                >
+                  {c.label}
+                </text>
+              )}
+            </g>
+          )
+        })}
 
         {floor.rooms.map((room) => {
           const vacant = room.tenant === null
           const active = selectedId === room.id || hovered === room.id
-          const { x, y, w, h } = room.shape
+          const { x, y, w, h } = bbox(room.polygon)
           // Підписи всередині фігури — лише коли вона достатньо велика
           const showTenant = h >= 150 && w >= 170
           const showRent = h >= 110 && w >= 120
@@ -87,16 +90,12 @@ export default function FloorPlan({
               onMouseLeave={() => setHovered(null)}
               className="cursor-pointer outline-none"
             >
-              <rect
-                x={x}
-                y={y}
-                width={w}
-                height={h}
-                rx={6}
+              <polygon
+                points={toSvgPoints(room.polygon)}
                 fill={
                   vacant
-                    ? 'color-mix(in srgb, var(--color-vacant) 18%, transparent)'
-                    : 'color-mix(in srgb, var(--color-occupied) 14%, transparent)'
+                    ? 'color-mix(in srgb, var(--color-vacant) 22%, transparent)'
+                    : 'color-mix(in srgb, var(--color-occupied) 18%, transparent)'
                 }
                 stroke={
                   active
@@ -123,8 +122,8 @@ export default function FloorPlan({
               </text>
 
               {vacant ? (
-                <>
-                  {showRent && (
+                showRent && (
+                  <>
                     <text
                       x={x + 12}
                       y={y + h - 34}
@@ -134,8 +133,6 @@ export default function FloorPlan({
                     >
                       ВІЛЬНО
                     </text>
-                  )}
-                  {showRent && (
                     <text
                       x={x + 12}
                       y={y + h - 14}
@@ -144,8 +141,8 @@ export default function FloorPlan({
                     >
                       ~{uah(room.marketRent)} грн
                     </text>
-                  )}
-                </>
+                  </>
+                )
               ) : (
                 <>
                   {showTenant && (
@@ -165,7 +162,9 @@ export default function FloorPlan({
                       fontSize={14}
                       fontWeight={700}
                       className={
-                        room.marketRent > room.rent! ? 'fill-gold' : 'fill-foreground'
+                        room.marketRent > room.rent!
+                          ? 'fill-gold'
+                          : 'fill-foreground'
                       }
                     >
                       {uah(room.rent!)} грн
@@ -199,8 +198,13 @@ function Legend() {
   )
 }
 
-function aspectFromViewBox(viewBox: string) {
+function viewBoxSize(viewBox: string) {
   const [, , w, h] = viewBox.split(' ').map(Number)
+  return { w, h }
+}
+
+function aspectFromViewBox(viewBox: string) {
+  const { w, h } = viewBoxSize(viewBox)
   return `${w} / ${h}`
 }
 

@@ -5,19 +5,19 @@
  * Побудовано на реальних об'єктах Валентина з CRM (Лісова / Даринок, Троєщина) —
  * планування, орендарі й ставки вигадані.
  *
- * Геометрія приміщень поки що описана прямокутниками: для офісу з кабінетами
- * і складу з перестінками цього достатньо. Коли з'явиться завантаження скану
- * планування, форма зміниться на довільний полігон, а фонове зображення
- * підставлятиметься у floor.planImage — рендер від цього не залежить.
+ * Геометрія — довільні полігони. Прямокутники векторних планів будуються тим самим
+ * rect() і нічим не відрізняються від контурів, обведених по сканованому плану
+ * у режимі розмітки.
  */
 
-export type Shape = { x: number; y: number; w: number; h: number }
+import { rect } from './geometry'
+import type { Polygon } from './geometry'
 
 export type Room = {
   id: string
   label: string
   area: number
-  shape: Shape
+  polygon: Polygon
   /** null — приміщення вільне */
   tenant: string | null
   tenantPhone: string | null
@@ -41,7 +41,7 @@ export type Floor = {
   /** Скан планування під полігонами. Поки що немає — план малюється векторно. */
   planImage?: string
   /** Коридори, сходи тощо — показуємо, але вони не клікабельні */
-  corridors: Array<Shape & { label?: string }>
+  corridors: Array<{ polygon: Polygon; label?: string }>
   rooms: Array<Room>
 }
 
@@ -61,8 +61,6 @@ export type Site = {
 
 export type Owner = { name: string; sites: Array<Site> }
 
-const rect = (x: number, y: number, w: number, h: number): Shape => ({ x, y, w, h })
-
 /** Планування типового офісного поверху: 4 кабінети вздовж фасаду + 2 великих у глибині */
 const OFFICE_SHAPES = [
   rect(40, 40, 230, 240),
@@ -73,7 +71,7 @@ const OFFICE_SHAPES = [
   rect(490, 350, 470, 230),
 ]
 
-const OFFICE_CORRIDORS = [{ ...rect(40, 280, 920, 70), label: 'Коридор' }]
+const OFFICE_CORRIDORS = [{ polygon: rect(40, 280, 920, 70), label: 'Коридор' }]
 
 /** Планування складу: 5 приміщень ~250 м² через перестінки */
 const WAREHOUSE_SHAPES = [
@@ -99,14 +97,14 @@ type RoomSeed = [
 
 function buildRooms(
   floorId: string,
-  shapes: Array<Shape>,
+  shapes: Array<Polygon>,
   seeds: Array<RoomSeed>,
 ): Array<Room> {
   return seeds.map((s, i) => ({
     id: `${floorId}-${i + 1}`,
     label: s[0],
     area: s[1],
-    shape: shapes[i],
+    polygon: shapes[i],
     tenant: s[2],
     rent: s[3],
     marketRent: s[4],
