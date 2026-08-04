@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { MapPin, Menu, PencilRuler, TrendingDown, Wallet, X } from 'lucide-react'
+import { Layers, MapPin, Menu, TrendingDown, Wallet, X } from 'lucide-react'
 import { OWNER } from './mock'
 import type { Room } from './mock'
 import { uah } from './format'
@@ -9,7 +9,7 @@ import FloorPlan from './components/FloorPlan'
 import RoomDetails from './components/RoomDetails'
 import type { RequestType } from './components/RoomDetails'
 import ConfirmSheet from './components/ConfirmSheet'
-import PlanEditor from './components/PlanEditor'
+import PlanLibrary from './components/PlanLibrary'
 
 type Pending = { roomId: string; roomLabel: string; type: RequestType }
 
@@ -138,11 +138,11 @@ export default function App() {
 
             <button
               onClick={() => setEditorOpen(true)}
-              title="Розмітка планування"
+              title="Планування"
               className="flex shrink-0 items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground"
             >
-              <PencilRuler size={16} />
-              <span className="hidden sm:inline">Розмітка</span>
+              <Layers size={16} />
+              <span className="hidden sm:inline">Планування</span>
             </button>
           </header>
 
@@ -248,7 +248,7 @@ export default function App() {
         </div>
       )}
 
-      {editorOpen && <PlanEditor onClose={() => setEditorOpen(false)} />}
+      {editorOpen && <PlanLibrary onClose={() => setEditorOpen(false)} />}
 
       {pending && (
         <ConfirmSheet
