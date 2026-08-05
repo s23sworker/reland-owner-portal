@@ -69,7 +69,10 @@ export default function FloorPlan({
         })}
 
         {floor.rooms.map((room) => {
-          const vacant = room.tenant === null
+          // Приміщення без орендаря і без оцінки ставки — це «даних ще немає»,
+          // а не «вільно за такою-то ціною». Малюємо нейтрально, без обіцянок.
+          const unknown = room.tenant === null && room.marketRent === null
+          const vacant = room.tenant === null && !unknown
           const active = selectedId === room.id || hovered === room.id
           const { x, y, w, h } = bbox(room.polygon)
           // Підписи всередині фігури — лише коли вона достатньо велика
@@ -93,16 +96,20 @@ export default function FloorPlan({
               <polygon
                 points={toSvgPoints(room.polygon)}
                 fill={
-                  vacant
-                    ? 'color-mix(in srgb, var(--color-vacant) 22%, transparent)'
-                    : 'color-mix(in srgb, var(--color-occupied) 18%, transparent)'
+                  unknown
+                    ? 'color-mix(in srgb, var(--color-muted) 14%, transparent)'
+                    : vacant
+                      ? 'color-mix(in srgb, var(--color-vacant) 22%, transparent)'
+                      : 'color-mix(in srgb, var(--color-occupied) 18%, transparent)'
                 }
                 stroke={
                   active
                     ? 'var(--color-foreground)'
-                    : vacant
-                      ? 'var(--color-vacant)'
-                      : 'var(--color-occupied)'
+                    : unknown
+                      ? 'var(--color-muted)'
+                      : vacant
+                        ? 'var(--color-vacant)'
+                        : 'var(--color-occupied)'
                 }
                 strokeWidth={active ? 4 : 2}
                 className="transition-all"
@@ -121,7 +128,18 @@ export default function FloorPlan({
                 {room.area} м²
               </text>
 
-              {vacant ? (
+              {unknown ? (
+                showRent && (
+                  <text
+                    x={x + 12}
+                    y={y + h - 14}
+                    fontSize={13}
+                    className="fill-muted"
+                  >
+                    Немає даних
+                  </text>
+                )
+              ) : vacant ? (
                 showRent && (
                   <>
                     <text
@@ -139,7 +157,7 @@ export default function FloorPlan({
                       fontSize={13}
                       className="fill-muted"
                     >
-                      ~{uah(room.marketRent)} грн
+                      ~{uah(room.marketRent!)} грн
                     </text>
                   </>
                 )
@@ -162,7 +180,7 @@ export default function FloorPlan({
                       fontSize={14}
                       fontWeight={700}
                       className={
-                        room.marketRent > room.rent!
+                        room.marketRent !== null && room.marketRent > room.rent!
                           ? 'fill-gold'
                           : 'fill-foreground'
                       }

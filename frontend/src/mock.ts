@@ -11,6 +11,7 @@
  */
 
 import { rect } from './geometry'
+import { MEZHYHIRSKA } from './data/mezhyhirska'
 import type { Polygon } from './geometry'
 
 export type Room = {
@@ -23,8 +24,9 @@ export type Room = {
   tenantPhone: string | null
   /** Поточна ставка, грн/міс. Для вільного — null */
   rent: number | null
-  /** Наша оцінка ринкової ставки, грн/міс */
-  marketRent: number
+  /** Наша оцінка ринкової ставки, грн/міс. null — оцінки ще немає:
+   *  вигадана ставка в кабінеті гірша за відсутню, на неї подивляться як на справжню. */
+  marketRent: number | null
   contractNo: string | null
   /** Дата заселення, ISO */
   movedInAt: string | null
@@ -140,7 +142,7 @@ const warehouseFloor = (
   rooms: buildRooms(id, WAREHOUSE_SHAPES, seeds),
 })
 
-export const OWNER: Owner = {
+export const VALENTYN: Owner = {
   name: 'Валентин',
   sites: [
     {
@@ -233,3 +235,12 @@ export const OWNER: Owner = {
     },
   ],
 }
+
+/** Межигірська — власна будівля на Подолі. Планування побудовані за сканами БТІ. */
+export const MEZHYHIRSKA_OWNER: Owner = {
+  name: 'Межигірська',
+  sites: [MEZHYHIRSKA],
+}
+
+/** Усі картки власників. Перемикаються у сайдбарі. */
+export const OWNERS: Array<Owner> = [VALENTYN, MEZHYHIRSKA_OWNER]

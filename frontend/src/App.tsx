@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Layers, MapPin, Menu, TrendingDown, Wallet, X } from 'lucide-react'
-import { OWNER } from './mock'
+import { OWNERS } from './mock'
 import type { Room } from './mock'
 import { uah } from './format'
 import { haptic } from './telegram'
@@ -14,10 +14,14 @@ import PlanLibrary from './components/PlanLibrary'
 type Pending = { roomId: string; roomLabel: string; type: RequestType }
 
 export default function App() {
-  const [siteId, setSiteId] = useState(OWNER.sites[0].id)
-  const [buildingId, setBuildingId] = useState(OWNER.sites[0].buildings[0].id)
+  const [ownerId, setOwnerId] = useState(OWNERS[0].name)
+  const owner = OWNERS.find((o) => o.name === ownerId)!
+  const [siteId, setSiteId] = useState(OWNERS[0].sites[0].id)
+  const [buildingId, setBuildingId] = useState(
+    OWNERS[0].sites[0].buildings[0].id,
+  )
   const [floorId, setFloorId] = useState(
-    OWNER.sites[0].buildings[0].floors[0].id,
+    OWNERS[0].sites[0].buildings[0].floors[0].id,
   )
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null)
   const [expanded, setExpanded] = useState(false)
@@ -30,29 +34,44 @@ export default function App() {
   // Ключі виду "roomId:REQUEST_TYPE". Поки що тільки в пам'яті — бекенда немає.
   const [sent, setSent] = useState<Array<string>>([])
 
-  const site = OWNER.sites.find((s) => s.id === siteId)!
+  const site = owner.sites.find((s) => s.id === siteId) ?? owner.sites[0]
   const building = site.buildings.find((b) => b.id === buildingId)!
   const floor = building.floors.find((f) => f.id === floorId) ?? building.floors[0]
   const selectedRoom = floor.rooms.find((r) => r.id === selectedRoomId) ?? null
 
   const totals = useMemo(() => {
-    const rooms = OWNER.sites
+    const rooms = owner.sites
       .flatMap((s) => s.buildings)
       .flatMap((b) => b.floors)
       .flatMap((f) => f.rooms)
     const income = rooms.reduce((sum, r) => sum + (r.rent ?? 0), 0)
+    // Упущена вигода рахується лише там, де є оцінка ринкової ставки.
+    // Приміщення без даних у неї не потрапляють — інакше цифра вийде заниженою,
+    // але вигаданою вона б вийшла гіршою.
     const lost = rooms
-      .filter((r) => r.tenant === null)
-      .reduce((sum, r) => sum + r.marketRent, 0)
+      .filter((r) => r.tenant === null && r.marketRent !== null)
+      .reduce((sum, r) => sum + r.marketRent!, 0)
     const area = rooms.reduce((sum, r) => sum + r.area, 0)
     const busy = rooms
       .filter((r) => r.tenant !== null)
       .reduce((sum, r) => sum + r.area, 0)
     return { income, lost, occupancy: Math.round((busy / area) * 100) }
-  }, [])
+  }, [owner])
+
+  const selectOwner = (name: string) => {
+    const next = OWNERS.find((o) => o.name === name)!
+    setOwnerId(name)
+    setSiteId(next.sites[0].id)
+    setBuildingId(next.sites[0].buildings[0].id)
+    setFloorId(next.sites[0].buildings[0].floors[0].id)
+    setSelectedRoomId(null)
+    setExpanded(false)
+    setMenuOpen(false)
+    haptic()
+  }
 
   const selectBuilding = (nextSiteId: string, nextBuildingId: string) => {
-    const nextSite = OWNER.sites.find((s) => s.id === nextSiteId)!
+    const nextSite = owner.sites.find((s) => s.id === nextSiteId)!
     const nextBuilding =
       nextSite.buildings.find((b) => b.id === nextBuildingId) ??
       nextSite.buildings[0]
@@ -88,6 +107,9 @@ export default function App() {
       {/* Сайдбар: постійний на широкому екрані, шухляда — на телефоні */}
       <div className="hidden w-64 shrink-0 lg:block">
         <Sidebar
+          owner={owner}
+          owners={OWNERS}
+          onOwnerChange={selectOwner}
           activeSiteId={siteId}
           activeBuildingId={buildingId}
           onSelect={selectBuilding}
@@ -103,6 +125,9 @@ export default function App() {
           />
           <div className="relative w-72 max-w-[80%]">
             <Sidebar
+              owner={owner}
+              owners={OWNERS}
+              onOwnerChange={selectOwner}
               activeSiteId={siteId}
               activeBuildingId={buildingId}
               onSelect={selectBuilding}
@@ -165,7 +190,11 @@ export default function App() {
           {/* Поверхи */}
           <div className="no-scrollbar -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:px-0">
             {building.floors.map((f) => {
-              const free = f.rooms.filter((r) => r.tenant === null).length
+              // «Вільно» — лише там, де ми знаємо, що приміщення вільне.
+              // Приміщення без даних вільними не рахуються.
+              const free = f.rooms.filter(
+                (r) => r.tenant === null && r.marketRent !== null,
+              ).length
               const active = f.id === floor.id
               return (
                 <button

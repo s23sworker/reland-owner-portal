@@ -1,16 +1,21 @@
 import { Building2, ChevronDown, Crown, Warehouse } from 'lucide-react'
-import type { Site } from '../mock'
-import { OWNER } from '../mock'
+import type { Owner, Site } from '../mock'
 
 /**
  * Лівий сайдбар: бази → об'єкти всередині бази.
  * На вузькому екрані (Telegram на телефоні) виїжджає як шухляда — див. App.
  */
 export default function Sidebar({
+  owner,
+  owners,
+  onOwnerChange,
   activeSiteId,
   activeBuildingId,
   onSelect,
 }: {
+  owner: Owner
+  owners: Array<Owner>
+  onOwnerChange: (name: string) => void
   activeSiteId: string
   activeBuildingId: string
   onSelect: (siteId: string, buildingId: string) => void
@@ -22,15 +27,35 @@ export default function Sidebar({
           <Crown size={18} />
         </div>
         <div className="min-w-0">
-          <div className="truncate font-semibold">{OWNER.name}</div>
+          <div className="truncate font-semibold">{owner.name}</div>
           <div className="text-[10px] font-bold uppercase tracking-widest text-gold">
             Prime
           </div>
         </div>
       </div>
 
+      {/* Перемикач карток власників — наш інструмент. Справжній власник
+          бачитиме тільки свою картку, тому показуємо лише коли їх кілька. */}
+      {owners.length > 1 && (
+        <div className="no-scrollbar flex gap-1.5 overflow-x-auto border-b border-border p-3">
+          {owners.map((o) => (
+            <button
+              key={o.name}
+              onClick={() => onOwnerChange(o.name)}
+              className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                o.name === owner.name
+                  ? 'bg-accent/20 text-foreground'
+                  : 'text-muted hover:text-foreground'
+              }`}
+            >
+              {o.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       <nav className="flex-1 overflow-y-auto p-3">
-        {OWNER.sites.map((site) => (
+        {owner.sites.map((site) => (
           <SiteGroup
             key={site.id}
             site={site}
@@ -58,7 +83,7 @@ function SiteGroup({
   const vacant = site.buildings
     .flatMap((b) => b.floors)
     .flatMap((f) => f.rooms)
-    .filter((r) => r.tenant === null).length
+    .filter((r) => r.tenant === null && r.marketRent !== null).length
 
   return (
     <div className="mb-1">
@@ -86,7 +111,7 @@ function SiteGroup({
             const active = b.id === activeBuildingId
             const freeHere = b.floors
               .flatMap((f) => f.rooms)
-              .filter((r) => r.tenant === null).length
+              .filter((r) => r.tenant === null && r.marketRent !== null).length
             return (
               <button
                 key={b.id}

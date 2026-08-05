@@ -33,8 +33,12 @@ export default function RoomDetails({
   onRequest: (type: RequestType) => void
   onClose?: () => void
 }) {
-  const vacant = room.tenant === null
-  const gap = room.rent !== null ? room.marketRent - room.rent : 0
+  const unknown = room.tenant === null && room.marketRent === null
+  const vacant = room.tenant === null && !unknown
+  const gap =
+    room.rent !== null && room.marketRent !== null
+      ? room.marketRent - room.rent
+      : 0
 
   return (
     <div className="rounded-2xl border border-border bg-surface">
@@ -54,13 +58,23 @@ export default function RoomDetails({
       </div>
 
       <div className="space-y-4 p-4">
-        {vacant ? (
+        {unknown ? (
+          <div className="rounded-xl border border-border bg-surface-2 p-3">
+            <div className="text-[11px] font-bold uppercase tracking-widest text-muted">
+              Немає даних
+            </div>
+            <div className="mt-1 text-sm text-muted">
+              Приміщення є на плані БТІ. Орендаря й ставку заповнимо, коли
+              надійде договір.
+            </div>
+          </div>
+        ) : vacant ? (
           <div className="rounded-xl border border-vacant/30 bg-vacant/10 p-3">
             <div className="text-[11px] font-bold uppercase tracking-widest text-vacant">
               Вільно
             </div>
             <div className="mt-1 text-xl font-bold text-vacant">
-              {uah(room.marketRent)} грн
+              {uah(room.marketRent!)} грн
             </div>
             <div className="text-xs text-muted">орієнтовна ставка, грн/міс</div>
           </div>
@@ -88,7 +102,7 @@ export default function RoomDetails({
                 <div
                   className={`mt-1 text-2xl font-bold ${gap > 0 ? 'text-gold' : ''}`}
                 >
-                  {uah(room.marketRent)}
+                  {room.marketRent === null ? '—' : uah(room.marketRent)}
                 </div>
                 <div className="text-xs text-muted">грн/міс</div>
               </div>
@@ -141,7 +155,8 @@ export default function RoomDetails({
         )}
 
         <div className="pt-1">
-          {vacant ? (
+          {/* Немає орендаря — немає сенсу питати про попит чи шукати заміну */}
+          {vacant || unknown ? (
             <Action
               primary
               done={sent.includes('RENT_OUT')}
