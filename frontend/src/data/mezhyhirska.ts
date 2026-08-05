@@ -23,8 +23,30 @@ export const MEZHYHIRSKA: Site = {
         {
           "id": "basement",
           "label": "Цокольний",
-          "viewBox": "0 0 433 372",
-          "corridors": [],
+          "viewBox": "0 0 644 289",
+          "corridors": [
+            {
+              "polygon": [
+                [
+                  14,
+                  101
+                ],
+                [
+                  293,
+                  101
+                ],
+                [
+                  293,
+                  146
+                ],
+                [
+                  14,
+                  146
+                ]
+              ],
+              "label": "Коридор"
+            }
+          ],
           "rooms": [
             {
               "id": "basement-1",
@@ -32,20 +54,20 @@ export const MEZHYHIRSKA: Site = {
               "area": 9.6,
               "polygon": [
                 [
-                  25,
-                  25
+                  14,
+                  14
                 ],
                 [
-                  96,
-                  25
+                  85,
+                  14
                 ],
                 [
-                  96,
-                  110
+                  85,
+                  98
                 ],
                 [
-                  25,
-                  110
+                  14,
+                  98
                 ]
               ],
               "tenant": null,
@@ -63,20 +85,20 @@ export const MEZHYHIRSKA: Site = {
               "area": 15,
               "polygon": [
                 [
-                  100,
-                  25
+                  88,
+                  14
                 ],
                 [
-                  211,
-                  25
+                  199,
+                  14
                 ],
                 [
-                  211,
-                  110
+                  199,
+                  98
                 ],
                 [
-                  100,
-                  110
+                  88,
+                  98
                 ]
               ],
               "tenant": null,
@@ -90,24 +112,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "basement-3",
-              "label": "ІІ",
-              "area": 8.6,
+              "label": "1",
+              "area": 12.9,
               "polygon": [
                 [
-                  214,
-                  25
+                  14,
+                  149
                 ],
                 [
-                  278,
-                  25
+                  78,
+                  149
                 ],
                 [
-                  278,
-                  110
+                  78,
+                  275
                 ],
                 [
-                  214,
-                  110
+                  14,
+                  275
                 ]
               ],
               "tenant": null,
@@ -121,24 +143,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "basement-4",
-              "label": "1",
-              "area": 12.9,
+              "label": "3",
+              "area": 26.8,
               "polygon": [
                 [
-                  25,
-                  113
+                  81,
+                  149
                 ],
                 [
-                  89,
-                  113
+                  214,
+                  149
                 ],
                 [
-                  89,
-                  239
+                  214,
+                  275
                 ],
                 [
-                  25,
-                  239
+                  81,
+                  275
                 ]
               ],
               "tenant": null,
@@ -152,24 +174,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "basement-5",
-              "label": "3",
-              "area": 26.8,
+              "label": "4",
+              "area": 15.1,
               "polygon": [
                 [
-                  93,
-                  113
+                  217,
+                  149
                 ],
                 [
-                  226,
-                  113
+                  293,
+                  149
                 ],
                 [
-                  226,
-                  239
+                  293,
+                  275
                 ],
                 [
-                  93,
-                  239
+                  217,
+                  275
                 ]
               ],
               "tenant": null,
@@ -183,24 +205,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "basement-6",
-              "label": "4",
-              "area": 15.1,
+              "label": "ІІ",
+              "area": 8.6,
               "polygon": [
                 [
-                  230,
-                  113
+                  302,
+                  14
                 ],
                 [
-                  305,
-                  113
+                  343,
+                  14
                 ],
                 [
-                  305,
-                  239
+                  343,
+                  146
                 ],
                 [
-                  230,
-                  239
+                  302,
+                  146
                 ]
               ],
               "tenant": null,
@@ -214,24 +236,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "basement-7",
-              "label": "ІІІ",
+              "label": "1",
               "area": 5.3,
               "polygon": [
                 [
-                  309,
-                  113
+                  352,
+                  14
                 ],
                 [
-                  336,
-                  113
+                  411,
+                  14
                 ],
                 [
-                  336,
-                  239
+                  411,
+                  70
                 ],
                 [
-                  309,
-                  239
+                  352,
+                  70
                 ]
               ],
               "tenant": null,
@@ -245,24 +267,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "basement-8",
-              "label": "1",
-              "area": 5.3,
+              "label": "4",
+              "area": 4.8,
               "polygon": [
                 [
-                  25,
-                  242
+                  414,
+                  14
                 ],
                 [
-                  57,
-                  242
+                  467,
+                  14
                 ],
                 [
-                  57,
-                  347
+                  467,
+                  70
                 ],
                 [
-                  25,
-                  347
+                  414,
+                  70
                 ]
               ],
               "tenant": null,
@@ -276,24 +298,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "basement-9",
-              "label": "4",
-              "area": 4.8,
+              "label": "2",
+              "area": 5.3,
               "polygon": [
                 [
-                  60,
-                  242
+                  470,
+                  14
                 ],
                 [
-                  89,
-                  242
+                  529,
+                  14
                 ],
                 [
-                  89,
-                  347
+                  529,
+                  70
                 ],
                 [
-                  60,
-                  347
+                  470,
+                  70
                 ]
               ],
               "tenant": null,
@@ -307,24 +329,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "basement-10",
-              "label": "2",
-              "area": 5.3,
+              "label": "8",
+              "area": 13.8,
               "polygon": [
                 [
-                  93,
-                  242
+                  352,
+                  149
                 ],
                 [
-                  124,
-                  242
+                  434,
+                  149
                 ],
                 [
-                  124,
-                  347
+                  434,
+                  254
                 ],
                 [
-                  93,
-                  347
+                  352,
+                  254
                 ]
               ],
               "tenant": null,
@@ -338,24 +360,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "basement-11",
-              "label": "8",
-              "area": 13.8,
+              "label": "5",
+              "area": 11.3,
               "polygon": [
                 [
-                  128,
-                  242
+                  437,
+                  149
                 ],
                 [
-                  210,
-                  242
+                  505,
+                  149
                 ],
                 [
-                  210,
-                  347
+                  505,
+                  254
                 ],
                 [
-                  128,
-                  347
+                  437,
+                  254
                 ]
               ],
               "tenant": null,
@@ -369,24 +391,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "basement-12",
-              "label": "5",
-              "area": 11.3,
+              "label": "9",
+              "area": 9.7,
               "polygon": [
                 [
-                  214,
-                  242
+                  508,
+                  149
                 ],
                 [
-                  281,
-                  242
+                  565,
+                  149
                 ],
                 [
-                  281,
-                  347
+                  565,
+                  254
                 ],
                 [
-                  214,
-                  347
+                  508,
+                  254
                 ]
               ],
               "tenant": null,
@@ -400,24 +422,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "basement-13",
-              "label": "9",
-              "area": 9.7,
+              "label": "10",
+              "area": 10.3,
               "polygon": [
                 [
-                  285,
-                  242
+                  568,
+                  149
                 ],
                 [
-                  343,
-                  242
+                  630,
+                  149
                 ],
                 [
-                  343,
-                  347
+                  630,
+                  254
                 ],
                 [
-                  285,
-                  347
+                  568,
+                  254
                 ]
               ],
               "tenant": null,
@@ -431,24 +453,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "basement-14",
-              "label": "10",
-              "area": 10.3,
+              "label": "ІІІ",
+              "area": 5.3,
               "polygon": [
                 [
-                  346,
-                  242
+                  352,
+                  101
                 ],
                 [
-                  408,
-                  242
+                  630,
+                  101
                 ],
                 [
-                  408,
-                  347
+                  630,
+                  113
                 ],
                 [
-                  346,
-                  347
+                  352,
+                  113
                 ]
               ],
               "tenant": null,
@@ -465,8 +487,30 @@ export const MEZHYHIRSKA: Site = {
         {
           "id": "floor-1",
           "label": "І поверх",
-          "viewBox": "0 0 738 352",
-          "corridors": [],
+          "viewBox": "0 0 772 287",
+          "corridors": [
+            {
+              "polygon": [
+                [
+                  14,
+                  102
+                ],
+                [
+                  247,
+                  102
+                ],
+                [
+                  247,
+                  147
+                ],
+                [
+                  14,
+                  147
+                ]
+              ],
+              "label": "Коридор"
+            }
+          ],
           "rooms": [
             {
               "id": "floor-1-1",
@@ -474,20 +518,20 @@ export const MEZHYHIRSKA: Site = {
               "area": 17.3,
               "polygon": [
                 [
-                  25,
-                  25
+                  14,
+                  14
                 ],
                 [
-                  152,
-                  25
+                  141,
+                  14
                 ],
                 [
-                  152,
-                  110
+                  141,
+                  99
                 ],
                 [
-                  25,
-                  110
+                  14,
+                  99
                 ]
               ],
               "tenant": null,
@@ -505,20 +549,20 @@ export const MEZHYHIRSKA: Site = {
               "area": 11.5,
               "polygon": [
                 [
-                  156,
-                  25
+                  144,
+                  14
                 ],
                 [
-                  240,
-                  25
+                  228,
+                  14
                 ],
                 [
-                  240,
-                  110
+                  228,
+                  99
                 ],
                 [
-                  156,
-                  110
+                  144,
+                  99
                 ]
               ],
               "tenant": null,
@@ -532,24 +576,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-1-3",
-              "label": "2",
-              "area": 12.9,
+              "label": "5",
+              "area": 7.8,
               "polygon": [
                 [
-                  244,
-                  25
+                  14,
+                  150
                 ],
                 [
-                  338,
-                  25
+                  53,
+                  150
                 ],
                 [
-                  338,
-                  110
+                  53,
+                  273
                 ],
                 [
-                  244,
-                  110
+                  14,
+                  273
                 ]
               ],
               "tenant": null,
@@ -564,23 +608,23 @@ export const MEZHYHIRSKA: Site = {
             {
               "id": "floor-1-4",
               "label": "3",
-              "area": 10.2,
+              "area": 13.3,
               "polygon": [
                 [
-                  342,
-                  25
+                  56,
+                  150
                 ],
                 [
-                  417,
-                  25
+                  124,
+                  150
                 ],
                 [
-                  417,
-                  110
+                  124,
+                  273
                 ],
                 [
-                  342,
-                  110
+                  56,
+                  273
                 ]
               ],
               "tenant": null,
@@ -594,24 +638,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-1-5",
-              "label": "4",
-              "area": 13,
+              "label": "2",
+              "area": 23.8,
               "polygon": [
                 [
-                  420,
-                  25
+                  127,
+                  150
                 ],
                 [
-                  516,
-                  25
+                  247,
+                  150
                 ],
                 [
-                  516,
-                  110
+                  247,
+                  273
                 ],
                 [
-                  420,
-                  110
+                  127,
+                  273
                 ]
               ],
               "tenant": null,
@@ -625,24 +669,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-1-6",
-              "label": "1",
-              "area": 18.5,
+              "label": "ІІ (сходи)",
+              "area": 15.4,
               "polygon": [
                 [
-                  25,
-                  114
+                  257,
+                  14
                 ],
                 [
-                  235,
-                  114
+                  329,
+                  14
                 ],
                 [
-                  235,
-                  169
+                  329,
+                  147
                 ],
                 [
-                  25,
-                  169
+                  257,
+                  147
                 ]
               ],
               "tenant": null,
@@ -656,24 +700,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-1-7",
-              "label": "5",
-              "area": 7.8,
+              "label": "2",
+              "area": 12.9,
               "polygon": [
                 [
-                  25,
-                  204
+                  339,
+                  14
                 ],
                 [
-                  65,
-                  204
+                  433,
+                  14
                 ],
                 [
-                  65,
-                  327
+                  433,
+                  99
                 ],
                 [
-                  25,
-                  327
+                  339,
+                  99
                 ]
               ],
               "tenant": null,
@@ -688,23 +732,23 @@ export const MEZHYHIRSKA: Site = {
             {
               "id": "floor-1-8",
               "label": "3",
-              "area": 13.3,
+              "area": 10.2,
               "polygon": [
                 [
-                  68,
-                  204
+                  436,
+                  14
                 ],
                 [
-                  136,
-                  204
+                  511,
+                  14
                 ],
                 [
-                  136,
-                  327
+                  511,
+                  99
                 ],
                 [
-                  68,
-                  327
+                  436,
+                  99
                 ]
               ],
               "tenant": null,
@@ -718,24 +762,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-1-9",
-              "label": "2",
-              "area": 23.8,
+              "label": "4",
+              "area": 13,
               "polygon": [
                 [
-                  139,
-                  204
+                  514,
+                  14
                 ],
                 [
-                  260,
-                  204
+                  609,
+                  14
                 ],
                 [
-                  260,
-                  327
+                  609,
+                  99
                 ],
                 [
-                  139,
-                  327
+                  514,
+                  99
                 ]
               ],
               "tenant": null,
@@ -749,24 +793,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-1-10",
-              "label": "ІІ (сходи)",
-              "area": 15.4,
+              "label": "11",
+              "area": 18.8,
               "polygon": [
                 [
-                  264,
-                  204
+                  339,
+                  150
                 ],
                 [
-                  342,
-                  204
+                  434,
+                  150
                 ],
                 [
-                  342,
-                  327
+                  434,
+                  273
                 ],
                 [
-                  264,
-                  327
+                  339,
+                  273
                 ]
               ],
               "tenant": null,
@@ -780,24 +824,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-1-11",
-              "label": "11",
-              "area": 18.8,
+              "label": "10",
+              "area": 14.1,
               "polygon": [
                 [
-                  346,
-                  204
+                  437,
+                  150
                 ],
                 [
-                  441,
-                  204
+                  509,
+                  150
                 ],
                 [
-                  441,
-                  327
+                  509,
+                  273
                 ],
                 [
-                  346,
-                  327
+                  437,
+                  273
                 ]
               ],
               "tenant": null,
@@ -811,24 +855,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-1-12",
-              "label": "10",
-              "area": 14.1,
+              "label": "9",
+              "area": 12.3,
               "polygon": [
                 [
-                  445,
-                  204
+                  512,
+                  150
                 ],
                 [
-                  516,
-                  204
+                  574,
+                  150
                 ],
                 [
-                  516,
-                  327
+                  574,
+                  273
                 ],
                 [
-                  445,
-                  327
+                  512,
+                  273
                 ]
               ],
               "tenant": null,
@@ -842,24 +886,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-1-13",
-              "label": "9",
-              "area": 12.3,
+              "label": "1",
+              "area": 18.5,
               "polygon": [
                 [
-                  520,
-                  204
+                  339,
+                  102
                 ],
                 [
-                  582,
-                  204
+                  609,
+                  102
                 ],
                 [
-                  582,
-                  327
+                  609,
+                  145
                 ],
                 [
-                  520,
-                  327
+                  339,
+                  145
                 ]
               ],
               "tenant": null,
@@ -877,20 +921,20 @@ export const MEZHYHIRSKA: Site = {
               "area": 9.5,
               "polygon": [
                 [
-                  607,
-                  25
+                  653,
+                  14
                 ],
                 [
-                  713,
-                  25
+                  758,
+                  14
                 ],
                 [
-                  713,
-                  82
+                  758,
+                  70
                 ],
                 [
-                  607,
-                  82
+                  653,
+                  70
                 ]
               ],
               "tenant": null,
@@ -907,8 +951,30 @@ export const MEZHYHIRSKA: Site = {
         {
           "id": "floor-2",
           "label": "ІІ поверх",
-          "viewBox": "0 0 785 358",
-          "corridors": [],
+          "viewBox": "0 0 822 297",
+          "corridors": [
+            {
+              "polygon": [
+                [
+                  14,
+                  102
+                ],
+                [
+                  267,
+                  102
+                ],
+                [
+                  267,
+                  147
+                ],
+                [
+                  14,
+                  147
+                ]
+              ],
+              "label": "Коридор"
+            }
+          ],
           "rooms": [
             {
               "id": "floor-2-1",
@@ -916,20 +982,20 @@ export const MEZHYHIRSKA: Site = {
               "area": 18.3,
               "polygon": [
                 [
-                  25,
-                  25
+                  14,
+                  14
                 ],
                 [
-                  160,
-                  25
+                  148,
+                  14
                 ],
                 [
-                  160,
-                  110
+                  148,
+                  99
                 ],
                 [
-                  25,
-                  110
+                  14,
+                  99
                 ]
               ],
               "tenant": null,
@@ -947,20 +1013,20 @@ export const MEZHYHIRSKA: Site = {
               "area": 8.4,
               "polygon": [
                 [
-                  163,
-                  25
+                  151,
+                  14
                 ],
                 [
-                  225,
-                  25
+                  213,
+                  14
                 ],
                 [
-                  225,
-                  110
+                  213,
+                  99
                 ],
                 [
-                  163,
-                  110
+                  151,
+                  99
                 ]
               ],
               "tenant": null,
@@ -974,24 +1040,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-2-3",
-              "label": "2",
-              "area": 12.4,
+              "label": "1",
+              "area": 14.1,
               "polygon": [
                 [
-                  229,
-                  25
+                  14,
+                  155
                 ],
                 [
-                  320,
-                  25
+                  82,
+                  155
                 ],
                 [
-                  320,
-                  110
+                  82,
+                  283
                 ],
                 [
-                  229,
-                  110
+                  14,
+                  283
                 ]
               ],
               "tenant": null,
@@ -1006,23 +1072,23 @@ export const MEZHYHIRSKA: Site = {
             {
               "id": "floor-2-4",
               "label": "3",
-              "area": 10.2,
+              "area": 13.9,
               "polygon": [
                 [
-                  324,
-                  25
+                  85,
+                  155
                 ],
                 [
-                  399,
-                  25
+                  153,
+                  155
                 ],
                 [
-                  399,
-                  110
+                  153,
+                  283
                 ],
                 [
-                  324,
-                  110
+                  85,
+                  283
                 ]
               ],
               "tenant": null,
@@ -1036,24 +1102,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-2-5",
-              "label": "4",
-              "area": 11.9,
+              "label": "2",
+              "area": 23,
               "polygon": [
                 [
-                  403,
-                  25
+                  156,
+                  155
                 ],
                 [
-                  490,
-                  25
+                  267,
+                  155
                 ],
                 [
-                  490,
-                  110
+                  267,
+                  283
                 ],
                 [
-                  403,
-                  110
+                  156,
+                  283
                 ]
               ],
               "tenant": null,
@@ -1067,24 +1133,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-2-6",
-              "label": "1",
-              "area": 20.7,
+              "label": "ІІІ (сходи)",
+              "area": 15.9,
               "polygon": [
                 [
-                  25,
-                  114
+                  277,
+                  14
                 ],
                 [
-                  260,
-                  114
+                  349,
+                  14
                 ],
                 [
-                  260,
-                  169
+                  349,
+                  152
                 ],
                 [
-                  25,
-                  169
+                  277,
+                  152
                 ]
               ],
               "tenant": null,
@@ -1098,24 +1164,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-2-7",
-              "label": "1",
-              "area": 14.1,
+              "label": "2",
+              "area": 12.4,
               "polygon": [
                 [
-                  25,
-                  204
+                  358,
+                  14
                 ],
                 [
-                  93,
-                  204
+                  450,
+                  14
                 ],
                 [
-                  93,
-                  333
+                  450,
+                  99
                 ],
                 [
-                  25,
-                  333
+                  358,
+                  99
                 ]
               ],
               "tenant": null,
@@ -1130,23 +1196,23 @@ export const MEZHYHIRSKA: Site = {
             {
               "id": "floor-2-8",
               "label": "3",
-              "area": 13.9,
+              "area": 10.2,
               "polygon": [
                 [
-                  97,
-                  204
+                  453,
+                  14
                 ],
                 [
-                  165,
-                  204
+                  528,
+                  14
                 ],
                 [
-                  165,
-                  333
+                  528,
+                  99
                 ],
                 [
-                  97,
-                  333
+                  453,
+                  99
                 ]
               ],
               "tenant": null,
@@ -1160,24 +1226,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-2-9",
-              "label": "2",
-              "area": 23,
+              "label": "4",
+              "area": 11.9,
               "polygon": [
                 [
-                  168,
-                  204
+                  531,
+                  14
                 ],
                 [
-                  280,
-                  204
+                  618,
+                  14
                 ],
                 [
-                  280,
-                  333
+                  618,
+                  99
                 ],
                 [
-                  168,
-                  333
+                  531,
+                  99
                 ]
               ],
               "tenant": null,
@@ -1191,24 +1257,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-2-10",
-              "label": "ІІІ (сходи)",
-              "area": 15.9,
+              "label": "12",
+              "area": 19.1,
               "polygon": [
                 [
-                  284,
-                  204
+                  358,
+                  155
                 ],
                 [
-                  361,
-                  204
+                  451,
+                  155
                 ],
                 [
-                  361,
-                  333
+                  451,
+                  283
                 ],
                 [
-                  284,
-                  333
+                  358,
+                  283
                 ]
               ],
               "tenant": null,
@@ -1222,24 +1288,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-2-11",
-              "label": "12",
-              "area": 19.1,
+              "label": "11",
+              "area": 14.3,
               "polygon": [
                 [
-                  365,
-                  204
+                  454,
+                  155
                 ],
                 [
-                  457,
-                  204
+                  524,
+                  155
                 ],
                 [
-                  457,
-                  333
+                  524,
+                  283
                 ],
                 [
-                  365,
-                  333
+                  454,
+                  283
                 ]
               ],
               "tenant": null,
@@ -1253,24 +1319,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-2-12",
-              "label": "11",
-              "area": 14.3,
+              "label": "10",
+              "area": 11.1,
               "polygon": [
                 [
-                  461,
-                  204
+                  527,
+                  155
                 ],
                 [
-                  531,
-                  204
+                  580,
+                  155
                 ],
                 [
-                  531,
-                  333
+                  580,
+                  283
                 ],
                 [
-                  461,
-                  333
+                  527,
+                  283
                 ]
               ],
               "tenant": null,
@@ -1284,24 +1350,24 @@ export const MEZHYHIRSKA: Site = {
             },
             {
               "id": "floor-2-13",
-              "label": "10",
-              "area": 11.1,
+              "label": "1",
+              "area": 20.7,
               "polygon": [
                 [
-                  534,
-                  204
+                  358,
+                  102
                 ],
                 [
-                  588,
-                  204
+                  618,
+                  102
                 ],
                 [
-                  588,
-                  333
+                  618,
+                  152
                 ],
                 [
-                  534,
-                  333
+                  358,
+                  152
                 ]
               ],
               "tenant": null,
@@ -1319,20 +1385,20 @@ export const MEZHYHIRSKA: Site = {
               "area": 9.7,
               "polygon": [
                 [
-                  613,
-                  25
+                  662,
+                  14
                 ],
                 [
-                  714,
-                  25
+                  763,
+                  14
                 ],
                 [
-                  714,
-                  85
+                  763,
+                  74
                 ],
                 [
-                  613,
-                  85
+                  662,
+                  74
                 ]
               ],
               "tenant": null,
@@ -1350,20 +1416,20 @@ export const MEZHYHIRSKA: Site = {
               "area": 4,
               "polygon": [
                 [
-                  718,
-                  25
+                  766,
+                  14
                 ],
                 [
-                  760,
-                  25
+                  808,
+                  14
                 ],
                 [
-                  760,
-                  85
+                  808,
+                  74
                 ],
                 [
-                  718,
-                  85
+                  766,
+                  74
                 ]
               ],
               "tenant": null,

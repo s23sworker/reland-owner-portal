@@ -28,7 +28,7 @@ const floors = FLOORS.map(({ file, label }) => {
     id: file,
     label,
     viewBox: plan.viewBox,
-    corridors: [],
+    corridors: plan.corridors ?? [],
     rooms: plan.rooms.map((room, i) => ({
       id: `${file}-${i + 1}`,
       label: room.label,
