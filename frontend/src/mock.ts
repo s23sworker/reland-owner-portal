@@ -42,8 +42,9 @@ export type Floor = {
   viewBox: string
   /** Скан планування під полігонами. Поки що немає — план малюється векторно. */
   planImage?: string
-  /** Коридори, сходи тощо — показуємо, але вони не клікабельні */
-  corridors: Array<{ polygon: Polygon; label?: string }>
+  /** Коридори, сходи тощо — показуємо, але вони не клікабельні.
+   *  area — площа за геометрією схеми, якщо на скані номер коридору не читається. */
+  corridors: Array<{ polygon: Polygon; label?: string; area?: number }>
   rooms: Array<Room>
 }
 

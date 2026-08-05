@@ -53,15 +53,28 @@ export default function FloorPlan({
                 className="fill-surface-2 stroke-border"
                 strokeWidth={2}
               />
+              {/* Коридор не клікабельний — здавати його не можна.
+                  Але площа в нього є, і вона має бути видна. */}
               {c.label && (
                 <text
                   x={box.x + box.w / 2}
-                  y={box.y + box.h / 2 + 5}
+                  y={box.y + box.h / 2 + (c.area ? -2 : 5)}
                   textAnchor="middle"
                   className="fill-muted"
-                  fontSize={16}
+                  fontSize={15}
                 >
                   {c.label}
+                </text>
+              )}
+              {c.area != null && (
+                <text
+                  x={box.x + box.w / 2}
+                  y={box.y + box.h / 2 + 16}
+                  textAnchor="middle"
+                  className="fill-muted"
+                  fontSize={13}
+                >
+                  {c.area} м²
                 </text>
               )}
             </g>

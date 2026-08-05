@@ -28,8 +28,22 @@ const floors = FLOORS.map(({ file, label }) => {
     id: file,
     label,
     viewBox: plan.viewBox,
-    corridors: plan.corridors ?? [],
-    rooms: plan.rooms.map((room, i) => ({
+    // Коридор — не об'єкт оренди, натискати на нього нема сенсу. Але площа в нього
+    // є і має бути видна, тому він іде в corridors із підписом, а не в rooms.
+    // Пронумеровані коридори (на цих планах — «1» правого крила) теж сюди.
+    corridors: [
+      ...(plan.corridors ?? []),
+      ...plan.rooms
+        .filter((r) => r.hall || r.common)
+        .map((r) => ({
+          polygon: r.polygon,
+          label: r.hall ? `Коридор ${r.label}` : r.label,
+          area: r.area,
+        })),
+    ],
+    rooms: plan.rooms
+      .filter((room) => !room.hall && !room.common)
+      .map((room, i) => ({
       id: `${file}-${i + 1}`,
       label: room.label,
       area: room.area,
@@ -46,18 +60,31 @@ const floors = FLOORS.map(({ file, label }) => {
   }
 })
 
-const total = floors
-  .flatMap((f) => f.rooms)
-  .reduce((sum, r) => sum + r.area, 0)
+/** Розкладка площ: прочитане зі сканів окремо від того, що добудувала геометрія */
+const tally = FLOORS.map(({ file }) =>
+  JSON.parse(readFileSync(join(here, 'out', `${file}.json`), 'utf8')),
+).reduce(
+  (acc, p) => ({
+    read: acc.read + p.readArea,
+    unread: acc.unread + p.unreadArea,
+    corridor: acc.corridor + p.corridorArea,
+  }),
+  { read: 0, unread: 0, corridor: 0 },
+)
+const total = tally.read + tally.unread + tally.corridor
 
 const out = `/**
- * Межигірська, 24, літ. «Б», Поділ — ${total.toFixed(1)} м².
+ * Межигірська, 24, літ. «Б», Поділ — ${total.toFixed(1)} м² у контурі схеми:
+ * ${tally.read.toFixed(1)} прочитано зі сканів, ${tally.unread.toFixed(1)} не розібрано,
+ * ${tally.corridor.toFixed(1)} коридор лівого крила без номера.
+ * Власник називає 623 м² — розбіжність закриває експлікація техпаспорта.
  *
  * ЗГЕНЕРОВАНО: node tools/build-site.mjs. Руками не правити —
  * джерело даних лежить у tools/build-floors.mjs.
  *
- * Планування побудовані за сканами БТІ від 12.01.07. Орендарів і ставок немає:
- * їх заповнюють, коли з'являються договори.
+ * Планування побудовані за сканами БТІ від 12.01.07. Це схема, а не обмір:
+ * для угоди, суду чи узаконення вона не годиться.
+ * Орендарів і ставок немає: їх заповнюють, коли з'являються договори.
  */
 
 import type { Site } from '../mock'
