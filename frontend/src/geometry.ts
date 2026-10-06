@@ -36,3 +36,50 @@ export function polygonArea(poly: Polygon): number {
   }
   return Math.abs(sum) / 2
 }
+
+/** Чи лежить точка всередині полігона (метод променя) */
+export function contains(poly: Polygon, [px, py]: Point): boolean {
+  let inside = false
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i]
+    const [xj, yj] = poly[j]
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) {
+      inside = !inside
+    }
+  }
+  return inside
+}
+
+/**
+ * Куди ставити підписи приміщення.
+ *
+ * Лівий верхній кут описаного прямокутника годиться лише для прямокутних кімнат.
+ * У Г-подібної він лежить поза фігурою — і підпис «3 · 217 м²» опиняється всередині
+ * сусіднього приміщення. Тому беремо вершини самого контуру: для верхнього підпису —
+ * найвищу ліву, для нижнього — найнижчу ліву, і перевіряємо, що відступ від неї
+ * справді всередині фігури.
+ */
+export function labelAnchors(poly: Polygon, inset: { x: number; top: number; bottom: number }) {
+  const box = bbox(poly)
+  const pick = (order: (a: Point, b: Point) => number, dy: number) => {
+    for (const [x, y] of [...poly].sort(order)) {
+      const p: Point = [x + inset.x, y + dy]
+      if (contains(poly, p)) return { x: x + inset.x, y, ownWidth: rowWidth(poly, x, y + dy) }
+    }
+    return null
+  }
+  const top =
+    pick((a, b) => a[1] - b[1] || a[0] - b[0], inset.top) ??
+    { x: box.x + inset.x, y: box.y, ownWidth: box.w }
+  const bottom =
+    pick((a, b) => b[1] - a[1] || a[0] - b[0], -inset.bottom) ??
+    { x: box.x + inset.x, y: box.y + box.h, ownWidth: box.w }
+  return { top, bottom }
+}
+
+/** Ширина фігури по горизонталі від точки x на висоті y — скільки місця під текст */
+function rowWidth(poly: Polygon, x: number, y: number): number {
+  let w = 0
+  while (w < 4000 && contains(poly, [x + w + 4, y])) w += 4
+  return w
+}

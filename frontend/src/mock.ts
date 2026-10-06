@@ -12,6 +12,7 @@
 
 import { rect } from './geometry'
 import { MEZHYHIRSKA } from './data/mezhyhirska'
+import { CHERVONOTKATSKA } from './data/chervonotkatska'
 import type { Polygon } from './geometry'
 
 export type Room = {
@@ -33,6 +34,24 @@ export type Room = {
   /** Дата, з якої за договором можна переглядати ставку, ISO */
   priceReviewAt: string | null
   leaseUntil: string | null
+  /** Решта даних із договору. Необов'язкова: для більшості приміщень її ще немає */
+  details?: TenantDetails
+}
+
+/** Усе, що власник бачить після кліку на приміщення, крім основного (хто, скільки, до коли) */
+export type TenantDetails = {
+  /** ЄДРПОУ для юрособи або ІПН для ФОП */
+  taxId?: string
+  activity?: string
+  contactPerson?: string
+  email?: string
+  /** День місяця, до якого сплачується оренда */
+  paymentDay?: number
+  deposit?: number
+  contractSignedAt?: string
+  indexation?: string
+  utilities?: string
+  notes?: string
 }
 
 export type Floor = {
@@ -243,5 +262,15 @@ export const MEZHYHIRSKA_OWNER: Owner = {
   sites: [MEZHYHIRSKA],
 }
 
+/** Червоноткацька — складська будівля, 8 приміщень, усі під орендарями. */
+export const CHERVONOTKATSKA_OWNER: Owner = {
+  name: 'Червоноткацька',
+  sites: [CHERVONOTKATSKA],
+}
+
 /** Усі картки власників. Перемикаються у сайдбарі. */
-export const OWNERS: Array<Owner> = [VALENTYN, MEZHYHIRSKA_OWNER]
+export const OWNERS: Array<Owner> = [
+  VALENTYN,
+  MEZHYHIRSKA_OWNER,
+  CHERVONOTKATSKA_OWNER,
+]

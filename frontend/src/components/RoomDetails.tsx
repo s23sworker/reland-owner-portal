@@ -1,10 +1,20 @@
 import {
+  Banknote,
+  Briefcase,
   CalendarClock,
   FileText,
+  Hash,
   LogIn,
+  Mail,
+  Pencil,
+  Percent,
   Phone,
+  PiggyBank,
+  Plug,
   Search,
+  StickyNote,
   TrendingUp,
+  User,
   UserPlus,
   X,
 } from 'lucide-react'
@@ -25,6 +35,7 @@ export default function RoomDetails({
   onToggleExpanded,
   onRequest,
   onClose,
+  onEdit,
 }: {
   room: Room
   sent: Array<RequestType>
@@ -32,7 +43,10 @@ export default function RoomDetails({
   onToggleExpanded: () => void
   onRequest: (type: RequestType) => void
   onClose?: () => void
+  /** Лише в режимі адміна: власник дані не править, їх веде CRM */
+  onEdit?: () => void
 }) {
+  const d = room.details ?? {}
   const unknown = room.tenant === null && room.marketRent === null
   const vacant = room.tenant === null && !unknown
   const gap =
@@ -47,14 +61,25 @@ export default function RoomDetails({
           <div className="text-lg font-semibold">{room.label}</div>
           <div className="mt-0.5 text-sm text-muted">{room.area} м²</div>
         </div>
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="text-muted transition-colors hover:text-foreground lg:hidden"
-          >
-            <X size={20} />
-          </button>
-        )}
+        <div className="flex items-center gap-1">
+          {onEdit && (
+            <button
+              onClick={onEdit}
+              title="Редагувати орендаря"
+              className="rounded-lg p-2 text-muted transition-colors hover:text-foreground"
+            >
+              <Pencil size={16} />
+            </button>
+          )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-2 text-muted transition-colors hover:text-foreground lg:hidden"
+            >
+              <X size={20} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-4 p-4">
@@ -67,6 +92,14 @@ export default function RoomDetails({
               Приміщення є на плані БТІ. Орендаря й ставку заповнимо, коли
               надійде договір.
             </div>
+            {onEdit && (
+              <button
+                onClick={onEdit}
+                className="mt-3 w-full rounded-xl bg-accent py-2.5 text-sm font-bold text-white"
+              >
+                Внести орендаря
+              </button>
+            )}
           </div>
         ) : vacant ? (
           <div className="rounded-xl border border-vacant/30 bg-vacant/10 p-3">
@@ -92,8 +125,14 @@ export default function RoomDetails({
                 <div className="text-xs uppercase tracking-wider text-muted">
                   Сплачує
                 </div>
-                <div className="mt-1 text-2xl font-bold">{uah(room.rent!)}</div>
-                <div className="text-xs text-muted">грн/міс</div>
+                <div className="mt-1 text-2xl font-bold">
+                  {room.rent === null ? '—' : uah(room.rent)}
+                </div>
+                <div className="text-xs text-muted">
+                  грн/міс
+                  {room.rent !== null &&
+                    ` · ${uah(Math.round(room.rent / room.area))} грн/м²`}
+                </div>
               </div>
               <div className="text-right">
                 <div className="text-xs uppercase tracking-wider text-muted">
@@ -127,28 +166,74 @@ export default function RoomDetails({
 
             {expanded && (
               <div className="space-y-3 rounded-xl bg-surface-2 p-3">
-                <Row icon={<Phone size={14} />} label="Телефон">
-                  <a
-                    href={`tel:${room.tenantPhone?.replace(/\s/g, '')}`}
-                    className="font-medium text-foreground"
-                  >
-                    {room.tenantPhone}
-                  </a>
-                </Row>
-                <Row icon={<FileText size={14} />} label="Договір">
-                  {room.contractNo}
-                </Row>
-                <Row icon={<LogIn size={14} />} label="Заселення">
-                  {room.movedInAt && date(room.movedInAt)}
-                </Row>
-                <Row icon={<CalendarClock size={14} />} label="Перегляд ціни">
-                  <span className="font-semibold text-gold">
-                    {room.priceReviewAt && date(room.priceReviewAt)}
-                  </span>
-                </Row>
-                <Row icon={<CalendarClock size={14} />} label="Договір до">
-                  {room.leaseUntil && date(room.leaseUntil)}
-                </Row>
+                {/* Порожні поля не показуємо: рядок «Email —» лише шумить */}
+                <Row icon={<Hash size={14} />} label="ЄДРПОУ / ІПН" value={d.taxId} />
+                <Row icon={<Briefcase size={14} />} label="Діяльність" value={d.activity} />
+                <Row icon={<User size={14} />} label="Контактна особа" value={d.contactPerson} />
+                {room.tenantPhone && (
+                  <Row icon={<Phone size={14} />} label="Телефон">
+                    <a
+                      href={`tel:${room.tenantPhone.replace(/\s/g, '')}`}
+                      className="font-medium text-foreground"
+                    >
+                      {room.tenantPhone}
+                    </a>
+                  </Row>
+                )}
+                {d.email && (
+                  <Row icon={<Mail size={14} />} label="Email">
+                    <a href={`mailto:${d.email}`} className="font-medium text-foreground">
+                      {d.email}
+                    </a>
+                  </Row>
+                )}
+
+                <Divider />
+                <Row
+                  icon={<Banknote size={14} />}
+                  label="День оплати"
+                  value={d.paymentDay ? `до ${d.paymentDay} числа` : undefined}
+                />
+                <Row
+                  icon={<PiggyBank size={14} />}
+                  label="Депозит"
+                  value={d.deposit !== undefined ? `${uah(d.deposit)} грн` : undefined}
+                />
+                <Row icon={<Percent size={14} />} label="Індексація" value={d.indexation} />
+                <Row icon={<Plug size={14} />} label="Комунальні" value={d.utilities} />
+
+                <Divider />
+                <Row icon={<FileText size={14} />} label="Договір" value={room.contractNo ?? undefined} />
+                <Row
+                  icon={<FileText size={14} />}
+                  label="Підписано"
+                  value={d.contractSignedAt && date(d.contractSignedAt)}
+                />
+                <Row
+                  icon={<LogIn size={14} />}
+                  label="Заселення"
+                  value={room.movedInAt ? date(room.movedInAt) : undefined}
+                />
+                {room.priceReviewAt && (
+                  <Row icon={<CalendarClock size={14} />} label="Перегляд ціни">
+                    <span className="font-semibold text-gold">{date(room.priceReviewAt)}</span>
+                  </Row>
+                )}
+                <Row
+                  icon={<CalendarClock size={14} />}
+                  label="Договір до"
+                  value={room.leaseUntil ? date(room.leaseUntil) : undefined}
+                />
+
+                {d.notes && (
+                  <>
+                    <Divider />
+                    <div className="flex gap-2 text-sm">
+                      <StickyNote size={14} className="mt-0.5 shrink-0 text-muted" />
+                      <span className="whitespace-pre-wrap">{d.notes}</span>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </>
@@ -192,21 +277,29 @@ export default function RoomDetails({
 function Row({
   icon,
   label,
+  value,
   children,
 }: {
   icon: React.ReactNode
   label: string
-  children: React.ReactNode
+  value?: string
+  children?: React.ReactNode
 }) {
+  const content = children ?? value
+  if (content === undefined || content === null || content === '') return null
   return (
     <div className="flex items-center justify-between gap-3 text-sm">
       <span className="flex items-center gap-2 text-muted">
         {icon}
         {label}
       </span>
-      <span className="text-right">{children}</span>
+      <span className="text-right">{content}</span>
     </div>
   )
+}
+
+function Divider() {
+  return <div className="border-t border-border/60" />
 }
 
 function Action({

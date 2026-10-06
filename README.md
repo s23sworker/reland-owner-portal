@@ -20,7 +20,7 @@
 ```bash
 cd frontend
 npm install
-npm run dev      # http://localhost:3001
+npm run dev      # http://localhost:3004
 ```
 
 ## Зв'язок із CRM

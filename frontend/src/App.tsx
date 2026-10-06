@@ -10,6 +10,9 @@ import RoomDetails from './components/RoomDetails'
 import type { RequestType } from './components/RoomDetails'
 import ConfirmSheet from './components/ConfirmSheet'
 import PlanLibrary from './components/PlanLibrary'
+import TenantForm from './components/TenantForm'
+import { applyTenant, loadTenants, saveTenants } from './tenants'
+import type { TenantBook } from './tenants'
 
 type Pending = { roomId: string; roomLabel: string; type: RequestType }
 
@@ -27,23 +30,41 @@ export default function App() {
   const [expanded, setExpanded] = useState(false)
   const [pending, setPending] = useState<Pending | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
-  // Режим адміна: розмітка планування. Власник його не бачить — це наш інструмент.
+  // Режим адміна (?admin): внесення орендарів. Власник дані не править —
+  // їх веде CRM, кабінет лише показує.
+  const isAdmin = new URLSearchParams(window.location.search).has('admin')
+  // Бібліотека планувань — наш інструмент; відкривається кнопкою «Планування»
+  // або одразу за ?plans
   const [editorOpen, setEditorOpen] = useState(
-    () => new URLSearchParams(window.location.search).has('admin'),
+    () => new URLSearchParams(window.location.search).has('plans'),
   )
+  const [tenants, setTenants] = useState<TenantBook>(loadTenants)
+  const [editingTenant, setEditingTenant] = useState(false)
   // Ключі виду "roomId:REQUEST_TYPE". Поки що тільки в пам'яті — бекенда немає.
   const [sent, setSent] = useState<Array<string>>([])
 
   const site = owner.sites.find((s) => s.id === siteId) ?? owner.sites[0]
   const building = site.buildings.find((b) => b.id === buildingId)!
-  const floor = building.floors.find((f) => f.id === floorId) ?? building.floors[0]
+  const baseFloor =
+    building.floors.find((f) => f.id === floorId) ?? building.floors[0]
+  // Приміщення з плану + внесені дані орендарів
+  const floor = useMemo(
+    () => ({ ...baseFloor, rooms: baseFloor.rooms.map((r) => applyTenant(r, tenants)) }),
+    [baseFloor, tenants],
+  )
   const selectedRoom = floor.rooms.find((r) => r.id === selectedRoomId) ?? null
+
+  const updateTenants = (next: TenantBook) => {
+    setTenants(next)
+    saveTenants(next)
+  }
 
   const totals = useMemo(() => {
     const rooms = owner.sites
       .flatMap((s) => s.buildings)
       .flatMap((b) => b.floors)
       .flatMap((f) => f.rooms)
+      .map((r) => applyTenant(r, tenants))
     const income = rooms.reduce((sum, r) => sum + (r.rent ?? 0), 0)
     // Упущена вигода рахується лише там, де є оцінка ринкової ставки.
     // Приміщення без даних у неї не потрапляють — інакше цифра вийде заниженою,
@@ -56,7 +77,7 @@ export default function App() {
       .filter((r) => r.tenant !== null)
       .reduce((sum, r) => sum + r.area, 0)
     return { income, lost, occupancy: Math.round((busy / area) * 100) }
-  }, [owner])
+  }, [owner, tenants])
 
   const selectOwner = (name: string) => {
     const next = OWNERS.find((o) => o.name === name)!
@@ -221,7 +242,7 @@ export default function App() {
             })}
           </div>
 
-          <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_340px]">
+          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
             <FloorPlan
               floor={floor}
               selectedId={selectedRoomId}
@@ -244,6 +265,7 @@ export default function App() {
                         type,
                       })
                     }
+                    onEdit={isAdmin ? () => setEditingTenant(true) : undefined}
                   />
                 </div>
               ) : (
@@ -273,11 +295,44 @@ export default function App() {
               })
             }
             onClose={() => setSelectedRoomId(null)}
+            onEdit={isAdmin ? () => setEditingTenant(true) : undefined}
           />
         </div>
       )}
 
       {editorOpen && <PlanLibrary onClose={() => setEditorOpen(false)} />}
+
+      {editingTenant && selectedRoom && (
+        <TenantForm
+          room={selectedRoom}
+          onClose={() => setEditingTenant(false)}
+          onSave={(record) => {
+            updateTenants({ ...tenants, [selectedRoom.id]: record })
+            setEditingTenant(false)
+            setExpanded(true)
+          }}
+          onClear={() => {
+            const next = { ...tenants }
+            delete next[selectedRoom.id]
+            // Приміщення з плану могло мати орендаря у вихідних даних —
+            // тоді «звільнити» означає явно записати порожнього
+            if (baseFloor.rooms.find((r) => r.id === selectedRoom.id)?.tenant) {
+              next[selectedRoom.id] = {
+                tenant: null,
+                tenantPhone: null,
+                rent: null,
+                contractNo: null,
+                movedInAt: null,
+                priceReviewAt: null,
+                leaseUntil: null,
+                details: {},
+              }
+            }
+            updateTenants(next)
+            setEditingTenant(false)
+          }}
+        />
+      )}
 
       {pending && (
         <ConfirmSheet
